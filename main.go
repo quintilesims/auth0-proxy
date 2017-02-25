@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 	"github.com/gorilla/context"
-	"github.com/quintilesims/auth0-proxy/authenticator"
 	"github.com/quintilesims/auth0-proxy/proxy"
 	"github.com/urfave/cli"
-	"log"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
 	"time"
 )
@@ -53,24 +53,40 @@ func main() {
 			Name:   "auth0-redirect-uri",
 			EnvVar: "AP_AUTH0_REDIRECT_URI",
 		},
+		cli.StringFlag{
+			Name:   "session-secret",
+			Value:  "some-secret-key",
+			EnvVar: "AP_SESSION_SECRET",
+		},
+		cli.DurationFlag{
+			Name:   "session-timeout",
+			Value:  time.Hour * 1,
+			EnvVar: "AP_SESSION_TIMEOUT",
+		},
 	}
 
 	app.Action = func(c *cli.Context) error {
-		authenticator := authenticator.NewAuth0Authenticator(
-			c.String("auth0-domain"),
-			c.String("auth0-client-id"),
-			c.String("auth0-client-secret"),
-			c.String("auth0-redirect-uri"),
-			time.Second*10)
+		reverseProxy := httputil.NewSingleHostReverseProxy(&url.URL{
+			Host:   fmt.Sprintf("%s:%d", c.String("proxy-host"), c.Int("proxy-port")),
+			Scheme: "http",
+		})
 
-		proxy := proxy.New(authenticator, c.String("proxy-host"), c.Int("proxy-port"))
+		auth0Proxy := proxy.NewAuth0Proxy(proxy.Config{
+			ReverseProxy:   reverseProxy,
+			Domain:         c.String("auth0-domain"),
+			ClientID:       c.String("auth0-client-id"),
+			ClientSecret:   c.String("auth0-client-secret"),
+			RedirectURI:    c.String("auth0-redirect-uri"),
+			SessionSecret:  []byte(c.String("session-secret")),
+			SessionTimeout: c.Duration("session-timeout")})
 
 		addr := fmt.Sprintf(":%d", c.Int("port"))
-		log.Printf("Listending on %s\n", addr)
-		return http.ListenAndServe(addr, context.ClearHandler(proxy))
+		fmt.Printf("Listening on %s\n", addr)
+		return http.ListenAndServe(addr, context.ClearHandler(auth0Proxy))
 	}
 
 	if err := app.Run(os.Args); err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }

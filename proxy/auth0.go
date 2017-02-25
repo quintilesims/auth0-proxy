@@ -1,4 +1,4 @@
-package authenticator
+package proxy
 
 import (
 	"bytes"
@@ -7,15 +7,23 @@ import (
 	"fmt"
 	"github.com/gorilla/sessions"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"time"
 )
 
-// todo: move this
-var secret = []byte("something-very-secret")
+type Config struct {
+	ReverseProxy   *httputil.ReverseProxy
+	Domain         string
+	ClientID       string
+	ClientSecret   string
+	RedirectURI    string
+	SessionSecret  []byte
+	SessionTimeout time.Duration
+}
 
 type Auth0Proxy struct {
-	Proxy          *httputil.ReverseProxy
+	ReverseProxy   *httputil.ReverseProxy
 	Domain         string
 	ClientID       string
 	ClientSecret   string
@@ -25,15 +33,15 @@ type Auth0Proxy struct {
 	requests       map[string]*http.Request
 }
 
-func NewAuth0Proxy(p *httputil.ReverseProxy, domain, clientID, clientSecret, redirectURI string, sessionTimeout time.Duration) *Auth0Proxy {
+func NewAuth0Proxy(c Config) *Auth0Proxy {
 	return &Auth0Proxy{
-		Proxy:          p,
-		Domain:         domain,
-		ClientID:       clientID,
-		ClientSecret:   clientSecret,
-		RedirectURI:    redirectURI,
-		SessionTimeout: sessionTimeout,
-		store:          sessions.NewCookieStore(secret),
+		ReverseProxy:   c.ReverseProxy,
+		Domain:         c.Domain,
+		ClientID:       c.ClientID,
+		ClientSecret:   c.ClientSecret,
+		RedirectURI:    c.RedirectURI,
+		SessionTimeout: c.SessionTimeout,
+		store:          sessions.NewCookieStore(c.SessionSecret),
 		requests:       map[string]*http.Request{},
 	}
 }
@@ -46,7 +54,7 @@ func (a *Auth0Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !session.IsNew {
-		a.Proxy.ServeHTTP(w, r)
+		a.ReverseProxy.ServeHTTP(w, r)
 		return
 	}
 
@@ -89,13 +97,12 @@ func (a *Auth0Proxy) handleAuth0Callback(w http.ResponseWriter, r *http.Request,
 
 	key := r.URL.Query().Get("state")
 	if originalRequest := a.requests[key]; originalRequest != nil {
-		fmt.Println("requst hit!")
 		delete(a.requests, key)
-		a.Proxy.ServeHTTP(w, originalRequest)
+		http.Redirect(w, r, originalRequest.URL.String(), http.StatusSeeOther)
 		return
 	}
 
-	a.Proxy.ServeHTTP(w, r)
+	a.ReverseProxy.ServeHTTP(w, r)
 }
 
 type CodeExchangeRequest struct {
@@ -135,7 +142,7 @@ func (a *Auth0Proxy) validateCode(code string) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return fmt.Errorf("Invalid status code")
+		return fmt.Errorf("Auth0 returned invalid status code %v", resp.StatusCode)
 	}
 
 	return nil
