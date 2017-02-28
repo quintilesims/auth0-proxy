@@ -12,16 +12,9 @@ import (
 	"time"
 )
 
-var Version string
-
 func main() {
-	if Version == "" {
-		Version = "unset/developer"
-	}
-
 	app := cli.NewApp()
 	app.Name = "Auth0 Proxy"
-	app.Version = Version
 	app.Flags = []cli.Flag{
 		cli.IntFlag{
 			Name:   "p, port",
