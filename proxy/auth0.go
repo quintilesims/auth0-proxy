@@ -126,7 +126,7 @@ func (a *Auth0Proxy) validateCode(code string) error {
                 RedirectURI:  a.RedirectURI,
         }
 
-	if err := client.Post("/oath/token", req, nil); err != nil{
+	if err := client.Post("/oauth/token", req, nil); err != nil{
 		return err
 	}
 

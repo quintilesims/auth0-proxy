@@ -9,35 +9,39 @@
             "environment": [
                 {
                     "name": "AP_PROXY_HOST",
-                    "value": ""
+                    "value": "${proxy_host}"
                 },
                 {
                     "name": "AP_PROXY_PORT",
-                    "value": "80"
+                    "value": "${proxy_port}"
+                },
+                {
+                    "name": "AP_PROXY_SCHEME",
+                    "value": "${proxy_scheme}"
                 },
                 {
                     "name": "AP_AUTH0_DOMAIN",
-                    "value": ""
+                    "value": "${auth0_domain}"
                 },
                 {
                     "name": "AP_AUTH0_CLIENT_ID",
-                    "value": ""
+                    "value": "${auth0_client_id}"
                 },
                 {
                     "name": "AP_AUTH0_CLIENT_SECRET",
-                    "value": ""
+                    "value": "${auth0_client_secret}"
                 },
                 {
                     "name": "AP_AUTH0_REDIRECT_URI",
-                    "value": ""
+                    "value": "${auth0_redirect_uri}"
                 },
                 {
                     "name": "AP_SESSION_SECRET",
-                    "value": ""
+                    "value": "${session_secret}"
                 },
                 {
                     "name": "AP_SESSION_TIMEOUT",
-                    "value": "1hr"
+                    "value": "${session_timeout}"
                 }
             ],
             "portMappings": [

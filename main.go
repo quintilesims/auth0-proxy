@@ -31,6 +31,11 @@ func main() {
 			EnvVar: "AP_PROXY_PORT",
 		},
 		cli.StringFlag{
+                        Name:   "proxy-scheme",
+                        Value:  "http",
+                        EnvVar: "AP_PROXY_SCHEME",
+                },
+		cli.StringFlag{
 			Name:   "auth0-domain",
 			EnvVar: "AP_AUTH0_DOMAIN",
 		},
@@ -61,7 +66,7 @@ func main() {
 	app.Action = func(c *cli.Context) error {
 		reverseProxy := httputil.NewSingleHostReverseProxy(&url.URL{
 			Host:   fmt.Sprintf("%s:%d", c.String("proxy-host"), c.Int("proxy-port")),
-			Scheme: "http",
+			Scheme: c.String("proxy-scheme"),
 		})
 
 		auth0Proxy := proxy.NewAuth0Proxy(proxy.Config{
