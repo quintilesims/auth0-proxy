@@ -38,11 +38,11 @@ variable "auth0_client_secret" {
   description = "Auth0 client secret"
 }
 
-variable "auth0_session_secret" {
+variable "session_secret" {
   description = "Secret key to encrypt Auth0 sessions"
 }
 
-variable "auth0_session_timeout" {
+variable "session_timeout" {
   description = "Timeout for Auth0 sessions"
   default     = "1hr"
 }
