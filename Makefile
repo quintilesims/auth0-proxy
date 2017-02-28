@@ -7,7 +7,7 @@ build:
 	docker build -t $(CURRENT_DOCKER_IMAGE) .
 
 release: build
-        docker push $(CURRENT_DOCKER_IMAGE)
+	docker push $(CURRENT_DOCKER_IMAGE)
 	docker tag  $(CURRENT_DOCKER_IMAGE) $(LATEST_DOCKER_IMAGE)
 	docker push $(LATEST_DOCKER_IMAGE)
 
