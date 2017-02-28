@@ -8,6 +8,11 @@ variable "layer0_token" {
   description = "The Layer0 API auth token"
 }
 
+variable "docker_image_tag" {
+  description = "The Docker image tag for the quintilesims/auth0-proxy image"
+  default     = "latest"
+}
+
 variable "layer0_environment_id" {
   description = "ID of the Layer0 environment to build the service"
 }
@@ -18,12 +23,12 @@ variable "proxy_load_balancer_url" {
 
 variable "proxy_load_balancer_port" {
   description = "Port of the Layer0 load balancer to proxy requests"
-  default = 80
+  default     = 80
 }
 
 variable "proxy_load_balancer_scheme" {
   description = "Scheme of the Layer0 load balancer to proxy requests"
-  default = "http"
+  default     = "http"
 }
 
 variable "auth0_domain" {
@@ -91,6 +96,7 @@ data "template_file" "proxy" {
   template = "${file("${path.module}/Dockerrun.aws.json")}"
 
   vars {
+    docker_image_tag    = "${var.docker_image_tag}"
     proxy_host          = "${var.proxy_load_balancer_url}"
     proxy_port          = "${var.proxy_load_balancer_port}"
     proxy_scheme        = "${var.proxy_load_balancer_scheme}"
@@ -120,4 +126,3 @@ output "service_id" {
 output "deploy_id" {
   value = "${layer0_deploy.proxy.id}"
 }
-

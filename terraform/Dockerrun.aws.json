@@ -3,7 +3,7 @@
     "containerDefinitions": [
         {
             "name": "auth0-proxy",
-            "image": "quintilesims/auth0-proxy:latest",
+            "image": "quintilesims/auth0-proxy:${docker_image_tag}",
             "essential": true,
             "memory": 128,
             "environment": [
