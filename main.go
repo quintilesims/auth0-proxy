@@ -30,7 +30,7 @@ func main() {
 		},
 		cli.StringFlag{
 			Name:   "proxy-host",
-			EnvVar: "AP_PROXY_URL",
+			EnvVar: "AP_PROXY_HOST",
 		},
 		cli.IntFlag{
 			Name:   "proxy-port",

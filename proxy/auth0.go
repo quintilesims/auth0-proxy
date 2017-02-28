@@ -1,9 +1,8 @@
 package proxy
 
 import (
-	"bytes"
+	"github.com/zpatrick/rclient"
 	"crypto/md5"
-	"encoding/json"
 	"fmt"
 	"github.com/gorilla/sessions"
 	"net/http"
@@ -114,35 +113,21 @@ type CodeExchangeRequest struct {
 }
 
 func (a *Auth0Proxy) validateCode(code string) error {
-	cer := CodeExchangeRequest{
-		GrantType:    "authorization_code",
-		ClientID:     a.ClientID,
-		ClientSecret: a.ClientSecret,
-		Code:         code,
-		RedirectURI:  a.RedirectURI,
-	}
-
-	b, err := json.Marshal(cer)
-	if err != nil {
+	client, err := rclient.NewRestClient(fmt.Sprintf("https://%s", a.Domain))
+	if err != nil{
 		return err
 	}
 
-	url := fmt.Sprintf("https://%s/oauth/token", a.Domain)
-	req, err := http.NewRequest("POST", url, bytes.NewReader(b))
-	if err != nil {
+	req :=  CodeExchangeRequest{
+                GrantType:    "authorization_code",
+                ClientID:     a.ClientID,
+                ClientSecret: a.ClientSecret,
+                Code:         code,
+                RedirectURI:  a.RedirectURI,
+        }
+
+	if err := client.Post("/oath/token", req, nil); err != nil{
 		return err
-	}
-
-	req.Header.Add("content-type", "application/json")
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		return fmt.Errorf("Auth0 returned invalid status code %v", resp.StatusCode)
 	}
 
 	return nil

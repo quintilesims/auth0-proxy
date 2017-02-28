@@ -1,0 +1,51 @@
+{
+    "AWSEBDockerrunVersion": 2,
+    "containerDefinitions": [
+        {
+            "name": "auth0-proxy",
+            "image": "quintilesims/auth0-proxy:latest",
+            "essential": true,
+            "memory": 128,
+            "environment": [
+                {
+                    "name": "AP_PROXY_HOST",
+                    "value": ""
+                },
+                {
+                    "name": "AP_PROXY_PORT",
+                    "value": "80"
+                },
+                {
+                    "name": "AP_AUTH0_DOMAIN",
+                    "value": ""
+                },
+                {
+                    "name": "AP_AUTH0_CLIENT_ID",
+                    "value": ""
+                },
+                {
+                    "name": "AP_AUTH0_CLIENT_SECRET",
+                    "value": ""
+                },
+                {
+                    "name": "AP_AUTH0_REDIRECT_URI",
+                    "value": ""
+                },
+                {
+                    "name": "AP_SESSION_SECRET",
+                    "value": ""
+                },
+                {
+                    "name": "AP_SESSION_TIMEOUT",
+                    "value": "1hr"
+                }
+            ],
+            "portMappings": [
+                {
+                    "hostPort": 80,
+                    "containerPort": 80
+                }
+            ]
+        }
+    ]
+}
