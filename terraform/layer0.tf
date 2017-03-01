@@ -43,13 +43,17 @@ variable "auth0_client_secret" {
   description = "Auth0 client secret"
 }
 
+variable "auth0_redirect_uri" {
+  description = "Auth0 redirect URI"
+}
+
 variable "session_secret" {
   description = "Secret key to encrypt Auth0 sessions"
 }
 
 variable "session_timeout" {
   description = "Timeout for Auth0 sessions"
-  default     = "1hr"
+  default     = "1h"
 }
 
 variable "ssl_certificate" {
@@ -92,6 +96,7 @@ resource "layer0_deploy" "proxy" {
   content = "${data.template_file.proxy.rendered}"
 }
 
+# todo: make auth0_redirect_uri optional
 data "template_file" "proxy" {
   template = "${file("${path.module}/Dockerrun.aws.json")}"
 
@@ -103,7 +108,8 @@ data "template_file" "proxy" {
     auth0_domain        = "${var.auth0_domain}"
     auth0_client_id     = "${var.auth0_client_id}"
     auth0_client_secret = "${var.auth0_client_secret}"
-    auth0_redirect_uri  = "https://${layer0_load_balancer.proxy.url}"
+    auth0_redirect_uri  = "${var.auth0_redirect_uri}" 
+	# was: https://${layer0_load_balancer.proxy.url}"
     session_secret      = "${var.session_secret}"
     session_timeout     = "${var.session_timeout}"
   }
