@@ -60,6 +60,11 @@ variable "ssl_certificate" {
   description = "SSL certificate name for the web load balancer"
 }
 
+variable "wait" {
+  description = "Wait for the service deployment to complete"
+  default     = false
+}
+
 # Resources
 
 provider "layer0" {
@@ -88,6 +93,7 @@ resource "layer0_service" "proxy" {
   deploy        = "${layer0_deploy.proxy.id}"
   load_balancer = "${layer0_load_balancer.proxy.id}"
   scale         = 1
+  wait          = "${var.wait}"
 }
 
 # todo: make name configurable
@@ -108,10 +114,11 @@ data "template_file" "proxy" {
     auth0_domain        = "${var.auth0_domain}"
     auth0_client_id     = "${var.auth0_client_id}"
     auth0_client_secret = "${var.auth0_client_secret}"
-    auth0_redirect_uri  = "${var.auth0_redirect_uri}" 
-	# was: https://${layer0_load_balancer.proxy.url}"
-    session_secret      = "${var.session_secret}"
-    session_timeout     = "${var.session_timeout}"
+    auth0_redirect_uri  = "${var.auth0_redirect_uri}"
+
+    # was: https://${layer0_load_balancer.proxy.url}"
+    session_secret  = "${var.session_secret}"
+    session_timeout = "${var.session_timeout}"
   }
 }
 
