@@ -1,13 +1,5 @@
 # Variables 
 
-variable "layer0_endpoint" {
-  description = "The Layer0 API endpoint"
-}
-
-variable "layer0_token" {
-  description = "The Layer0 API auth token"
-}
-
 variable "docker_image_tag" {
   description = "The Docker image tag for the quintilesims/auth0-proxy image"
   default     = "latest"
@@ -66,12 +58,6 @@ variable "wait" {
 }
 
 # Resources
-
-provider "layer0" {
-  endpoint        = "${var.layer0_endpoint}"
-  token           = "${var.layer0_token}"
-  skip_ssl_verify = true
-}
 
 # todo: make name configurable
 resource "layer0_load_balancer" "proxy" {
