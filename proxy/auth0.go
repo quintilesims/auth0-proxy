@@ -1,10 +1,10 @@
 package proxy
 
 import (
-	"github.com/zpatrick/rclient"
 	"crypto/md5"
 	"fmt"
 	"github.com/gorilla/sessions"
+	"github.com/zpatrick/rclient"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -113,20 +113,17 @@ type CodeExchangeRequest struct {
 }
 
 func (a *Auth0Proxy) validateCode(code string) error {
-	client, err := rclient.NewRestClient(fmt.Sprintf("https://%s", a.Domain))
-	if err != nil{
-		return err
+	client := rclient.NewRestClient(fmt.Sprintf("https://%s", a.Domain))
+
+	req := CodeExchangeRequest{
+		GrantType:    "authorization_code",
+		ClientID:     a.ClientID,
+		ClientSecret: a.ClientSecret,
+		Code:         code,
+		RedirectURI:  a.RedirectURI,
 	}
 
-	req :=  CodeExchangeRequest{
-                GrantType:    "authorization_code",
-                ClientID:     a.ClientID,
-                ClientSecret: a.ClientSecret,
-                Code:         code,
-                RedirectURI:  a.RedirectURI,
-        }
-
-	if err := client.Post("/oauth/token", req, nil); err != nil{
+	if err := client.Post("/oauth/token", req, nil); err != nil {
 		return err
 	}
 
